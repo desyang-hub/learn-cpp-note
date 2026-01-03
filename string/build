@@ -1,0 +1,1 @@
+g++ -o string-test string.h string-test.cpp

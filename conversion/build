@@ -1,0 +1,2 @@
+g++ -o fraction fraction.h fraction-test.cpp
+./fraction.exe
