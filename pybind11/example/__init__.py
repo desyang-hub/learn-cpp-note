@@ -4,6 +4,8 @@ def add(i : int, j : int) -> int:
 def inadd() -> None:
     ...
 
+def maxElement(nums : list) -> int:
+    ...
 
 # 2. 运行时导入真正的 C++ 模块
 try:
@@ -15,9 +17,11 @@ try:
     
     # 如果你也想导出 inadd，记得在这里赋值
     inadd = _cpp_impl.inadd 
+
+    maxElement = _cpp_impl.maxElement
     
     # 3. 控制导出范围
-    __all__ = ['add', 'inadd']  # 只有 add 会被 from example import * 导出
+    __all__ = ['add', 'inadd', 'maxElement']  # 只有 add 会被 from example import * 导出
     
 except ImportError as e:
     # 开发阶段友好的错误提示：如果 .so 还没编译，导入时会报错
