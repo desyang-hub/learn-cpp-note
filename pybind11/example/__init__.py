@@ -1,36 +1,3 @@
-## pybind11 使用
-
-
-### 1. 安装
-
-```bash
-pip install pybind11
-```
-
-### 2. 使用
-
-```c++
-#include <pybind11/pybind11.h>
-
-int add(int i, int j) {
-    return i + j;
-}
-
-namespace py = pybind11;
-
-PYBIND11_MODULE(example, m) {
-    m.def("add", &add, "A function which adds two numbers");
-}
-```
-
-### 构建
-```bash
-python setup.py build
-```
-
-### 使用
-```python
-# package_name/__init__.py
 def add(i : int, j : int) -> int:
     ...
 
@@ -58,4 +25,3 @@ except ImportError as e:
         "C++ 扩展模块 'example' 未找到。请先编译项目。\n"
         f"原始错误: {e}"
     )
-```
