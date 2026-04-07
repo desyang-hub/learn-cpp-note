@@ -34,14 +34,14 @@ int main() {
     splock_threads.reserve(10);
 
     for (int i = 0; i < 10; ++i) {
-        splock_threads.emplace_back(std::thread(spinlock_worker, i));
+        splock_threads.emplace_back(spinlock_worker, i);
     }
 
 
     std::vector<std::thread> mutex_threads;
     mutex_threads.reserve(10);
     for (int i = 0; i < 10; ++i) {
-        mutex_threads.emplace_back(std::thread(mutex_worker, i));
+        mutex_threads.emplace_back(mutex_worker, i);
     }
 
     for (int i = 0; i < 10; ++i) {
