@@ -6,7 +6,9 @@ using namespace ptr;
 using std::cout;
 using std::endl;
 
-class Integer {
+class Base {};
+
+class Integer : public Base {
     public:
         explicit Integer(int value = 0) : val_(value) {
             cout << __FUNCTION__ << " val: " << val_ << endl;
@@ -26,7 +28,9 @@ int main() {
 
     shared_ptr<Integer> sp3 = std::move(sp1);
 
-    cout << sp2.use_count() << endl;
+    shared_ptr<Base> base_sp4 = std::move(sp2);
+
+    cout << base_sp4.use_count() << endl;
 
     return 0;
 }

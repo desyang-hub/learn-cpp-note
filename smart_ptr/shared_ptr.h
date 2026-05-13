@@ -1,108 +1,132 @@
 #pragma once
 
+#include <atomic>
 #include <assert.h>
-#include <iostream>
-#include <utility>
-
+#include <stddef.h>
 #include <iostream>
 
 namespace ptr
 {
-
-template<class T>
-class shared_ptr
-{
+    
+class shared_count {
 private:
-    T* ptr_ = nullptr;
-    size_t* use_count_ptr_ = nullptr;
-
-private:
-    size_t use_count_plus() {
-        assert(use_count_ptr);
-        return ++(*use_count_ptr_);
-    }
-
-    size_t use_count_sub() {
-        assert(use_count_ptr);
-        return --(*use_count_ptr_);
-    }
-
-    void release() {
-        if (use_count_ptr_ && use_count_sub() == 0) {
-            delete ptr_;
-            delete use_count_ptr_;
-        }
-
-        ptr_ = nullptr;
-        use_count_ptr_ = nullptr;
-    }
-public:
-    explicit shared_ptr(T* ptr = nullptr) : ptr_(ptr), 
-        use_count_ptr_(ptr ? new size_t(1) : nullptr) {}
-
-    ~shared_ptr() {
-        release();
-    }
-
-    // 拷贝构造和拷贝赋值
-    shared_ptr(const shared_ptr& ptr) : ptr_(ptr.ptr_), use_count_ptr_(ptr.use_count_ptr_) {
-        use_count_plus();
-    }
-
-    shared_ptr& operator=(const shared_ptr& ptr) {
-        if (&ptr != this) {
-            release();
-            ptr_ = ptr.ptr_;
-            use_count_ptr_ = ptr.use_count_ptr_;
-            use_count_plus();
-        }
-        return *this;
-    }
-
-    // 移动构造和移动赋值，标记未noexcept 确保容器能够使用
-    shared_ptr(shared_ptr&& ptr) noexcept :
-        ptr_(ptr.ptr_),
-        use_count_ptr_(ptr.use_count_ptr_) 
-    {
-        ptr.ptr_ = nullptr;
-        ptr.use_count_ptr_ = nullptr;
-    }
-
-    shared_ptr& operator=(shared_ptr&& ptr) noexcept {
-        if (&ptr != this) {
-            release();
-            ptr_ = ptr.ptr_;
-            use_count_ptr_ = ptr.use_count_ptr_;
-
-            ptr.ptr_ = nullptr;
-            ptr.use_count_ptr_ = nullptr;
-        }
-        return *this;
-    }
+    std::atomic<long> count_;
 
 public:
-    T& operator*() const {
-        return *ptr_;
+    shared_count() : count_(1) {}
+
+    long add_count() {
+        return ++count_;
     }
 
-    T* operator->() const {
-        return ptr_;
+    long reduce_count() {
+        return --count_;
     }
 
-    T* get() const {
-        return ptr_;
+    long get_count() const {
+        return count_.load();
     }
-
-    size_t use_count() const {
-        return *use_count_ptr_;
-    }
-
 };
 
-template<class T, typename ...Args> 
+template<class T>
+class shared_ptr final
+{
+private:
+    using pointer = T*;
+    using reference = T&;
+    using const_reference = const T&;
+
+
+    shared_count* count_;
+    pointer ptr_;
+
+    void destroy() {
+        
+
+        if (count_ == nullptr || count_->reduce_count() == 0) {
+            delete ptr_;
+            ptr_ = nullptr;
+            count_ = nullptr;
+        }
+    }
+public:
+    shared_ptr(pointer ptr=nullptr) : ptr_(ptr), count_(new shared_count()) {
+
+    }
+    ~shared_ptr() {
+        destroy();
+    }
+
+    // 拷贝构造
+    shared_ptr(const shared_ptr& p) : ptr_(p.ptr_), count_(p.count_) {
+        count_->add_count(); // 引用计数++
+    }
+
+    template<class U>
+    friend class shared_ptr;
+
+    template<class U>
+    shared_ptr(const shared_ptr<U>& p) : ptr_(p.ptr_), count_(p.count_) {
+        std::cout << "copy" << std::endl;
+        count_->add_count(); // 引用计数++
+    }
+
+    shared_ptr& operator=(const shared_ptr& p) {
+        destroy(); // 销毁原有的资源
+        ptr_ = p.ptr_;
+        count_ = p.count_;
+        count_->add_count();
+        return *this;
+    }
+
+    // 移动操作
+    shared_ptr(shared_ptr&& p) noexcept : ptr_(p.ptr_), count_(p.count_) {
+        p.ptr_ = nullptr;
+        p.count_ = nullptr;
+    }
+
+    template<class U>
+    shared_ptr(shared_ptr<U>&& p) noexcept : ptr_(p.ptr_), count_(p.count_) {
+        std::cout << "move" << std::endl;
+        p.ptr_ = nullptr;
+        p.count_ = nullptr;
+    }
+
+    // copy and swap
+    shared_ptr& operator=(shared_ptr p) noexcept {
+        using std::swap;
+        swap(*this, p);
+        return *this;
+    }
+
+    template<class U>
+    shared_ptr& operator=(shared_ptr<U> &&p) noexcept {
+        using std::swap;
+        swap(*this, p);
+        return *this;
+    }
+
+public:
+    size_t use_count() const {
+        if (count_) {
+            return count_->get_count();
+        } else {
+            return 0;
+        }
+    }
+
+    pointer get() const {return ptr_;}
+
+    reference operator*() const {return *ptr_;}
+
+    pointer operator->() const {return ptr_;}
+};
+
+
+template<class T, typename ...Args>
 shared_ptr<T> make_shared(Args&& ...args) {
-    return shared_ptr<T>(new T(std::forward<Args>(args)...));
+    auto ptr = new T(std::forward<Args>(args)...);
+    return shared_ptr<T>(ptr);
 }
 
-    
 } // namespace ptr
