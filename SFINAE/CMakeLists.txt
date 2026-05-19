@@ -14,3 +14,7 @@ add_executable(sstring_parseInt sstring_parseInt.cc)
 add_executable(two_example two_example.cc)
 
 add_executable(IF IF.cc)
+
+add_executable(fmap fmap.cc)
+
+add_executable(EBO EBO.cc)
