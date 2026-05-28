@@ -2,32 +2,28 @@
 
 using namespace std;
 
-typedef struct Stag {
-    int a, b, c, d;
-} S;
+class Integer {
+private:
+    int data_;
+public:
+    Integer(int value = 0) : data_(value) {
+        cout << *this << " 对象构造" << endl;
+    }
+
+    ~Integer() {
+        // 析构发生
+        cout << *this << " 对象析构" << endl;
+    }
+
+    friend ostream& operator<<(ostream& os, const Integer& it) {
+        return os << "Integer{" << it.data_ << "}";
+    }
+};
 
 int main() {
-    int x = 0;
-    int* p = &x;
-    int &rx = x;
+    Integer a(2);
 
-    cout << sizeof(x) << endl;
-    cout << sizeof(p) << endl;
-    cout << sizeof(rx) << endl;
-
-    cout << p << endl;
-    cout << &x << endl;
-    cout << &rx << endl;
-    cout << x << endl;
-    cout << rx << endl;
-
-    S s;
-    S& rs = s;
-
-    cout << sizeof(s) << endl;
-    cout << sizeof(rs) << endl;
-    cout << &s << endl;
-    cout << &rs << endl;
+    Integer b = std::move(a);
     
 
     return 0;

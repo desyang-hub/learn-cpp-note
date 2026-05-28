@@ -15,7 +15,7 @@ int main(int argc, char const *argv[])
 
     thread_pool pool(8);
 
-    int num = 1e6;
+    int num = 1e4;
 
     std::vector<std::future<int>> results;
     results.reserve(num);
