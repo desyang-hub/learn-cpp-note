@@ -4,7 +4,7 @@
  * @Author       : desyang
  * @Date         : 2026-06-15 10:22:46
  * @LastEditors  : desyang
- * @LastEditTime : 2026-06-15 10:58:41
+ * @LastEditTime : 2026-06-15 11:07:51
 **/
 #pragma once
 
@@ -67,7 +67,7 @@ bool SPSCQueue<T>::pop(T& val) {
         return false;
     }
 
-    val = queue_[current_head];
+    val = std::move(queue_[current_head]);
     std::cout << "pop val: " << val << std::endl;
     head_.store((current_head + 1) & mask_, std::memory_order_acquire);
 
