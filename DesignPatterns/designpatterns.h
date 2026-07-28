@@ -3,3 +3,4 @@
 #include "Singletone.h"
 #include "Observer.h"
 #include "Strategy.h"
+#include "Decorator.h"

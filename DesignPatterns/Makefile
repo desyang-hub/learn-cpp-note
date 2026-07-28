@@ -1,2 +1,2 @@
 all:
-	g++ -o main main.cc Observer.cc Strategy.cc -std=c++14
+	g++ -o main main.cc Observer.cc Strategy.cc Decorate.cpp -std=c++14

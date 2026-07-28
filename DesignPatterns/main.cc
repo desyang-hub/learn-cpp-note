@@ -14,6 +14,7 @@ int main(int argc, char const *argv[])
     singletone_demo();
     observer_demo();
     strategy_demo();
+    decorator_demo();
     
 
     return 0;
