@@ -38,7 +38,7 @@ int main() {
         shmdt(shm);
         _exit(0);
     } else {
-        wait(nullptr);
+        wait(nullptr); // 等待子进程结束
         p_op(semid, -1);
         std::cout << "Shm: " << shm << "\n";
         p_op(semid, +1);
